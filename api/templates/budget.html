@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Budget Prediction</title>
+  <style>
+    body {
+      font-family: Arial;
+      background: #f5f5f5;
+      padding: 40px;
+    }
+    .box {
+      background: white;
+      padding: 30px;
+      width: 350px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    select, input, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+    }
+    h3 {
+      color: green;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="box">
+    <h2>Event Budget Prediction</h2>
+
+    <!-- Event Type -->
+    <select id="event_type">
+      <option value="">Select Event Type</option>
+      <option value="0">Workshop</option>
+      <option value="1">Conference</option>
+      <option value="2">Seminar</option>
+    </select>
+
+    <!-- Participants -->
+    <input id="participants" type="number" placeholder="Number of Participants">
+
+    <!-- Duration -->
+    <input id="duration" type="number" placeholder="Duration (in days)">
+
+    <!-- Department -->
+    <select id="department">
+      <option value="">Select Department</option>
+      <option value="0">CSE</option>
+      <option value="1">ECE</option>
+      <option value="2">Mechanical</option>
+    </select>
+
+    <button onclick="predict()">Predict Budget</button>
+
+    <h3 id="result"></h3>
+  </div>
+
+  <script>
+  async function predict() {
+    const data = {
+      event_type: Number(document.getElementById("event_type").value),
+      participants: Number(document.getElementById("participants").value),
+      duration: Number(document.getElementById("duration").value),
+      department: Number(document.getElementById("department").value)
+    };
+
+    console.log("Sending data:", data);
+
+    try {
+      const res = await fetch("/predict", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      });
+
+      console.log("Response status:", res.status);
+
+      const result = await res.json();
+      console.log("Response JSON:", result);
+
+      if (result.predicted_budget !== undefined) {
+        document.getElementById("result").innerText =
+          "Predicted Budget: ₹ " + result.predicted_budget;
+      } else {
+        document.getElementById("result").innerText =
+          "Error: " + (result.error || "Unknown error");
+      }
+    } catch (err) {
+      console.error("Fetch error:", err);
+      document.getElementById("result").innerText =
+        "Failed to connect to backend";
+    }
+  }
+</script>
+
+</body>
+</html>
